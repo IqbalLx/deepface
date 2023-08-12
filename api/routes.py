@@ -35,6 +35,44 @@ def represent():
 
     return obj
 
+@blueprint.route("/represent/base64", methods=["POST"])
+def represent_base54():
+    input_args = request.get_json()
+
+    if input_args is None:
+        return {"message": "empty input set passed"}
+
+    img_base64 = input_args.get("img")
+    if img_base64 is None:
+        return {"message": "you must pass img_path input"}
+    
+    img_ext = input_args.get("img_ext")
+    if img_ext is None:
+        return {"message": "you must pass img_ext input"}
+
+    img_path = service.base64_to_image(
+        img_base64,
+        "datas",
+        img_ext,
+    )
+
+    model_name = input_args.get("model_name", "VGG-Face")
+    detector_backend = input_args.get("detector_backend", "opencv")
+    enforce_detection = input_args.get("enforce_detection", True)
+    align = input_args.get("align", True)
+
+    obj = service.represent(
+        img_path=img_path,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+    )
+
+    obj["image_path"] = img_path
+
+    return obj
+
 
 @blueprint.route("/verify", methods=["POST"])
 def verify():
